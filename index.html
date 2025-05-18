@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dice Roller Game</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #1e1e2f;
+      color: white;
+      padding: 2rem;
+      display: flex;
+    }
+
+    .main {
+      flex: 1;
+      text-align: center;
+    }
+
+    h1 {
+      color: #61dafb;
+    }
+
+    select, button {
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      margin: 1rem;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button {
+      background-color: #61dafb;
+      color: #000;
+      cursor: pointer;
+    }
+
+    #result {
+      margin-top: 2rem;
+      font-size: 2rem;
+      color: white; /* Keep the text white */
+      font-weight: bold;
+    }
+
+    .history-panel {
+      width: 300px;
+      background-color: #1e1e2f;
+      padding: 1rem;
+      overflow-y: auto;
+      max-height: 90vh;
+    }
+
+    .history-panel h2 {
+      text-align: center;
+      color: #61dafb;
+    }
+
+    ul#history-list {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    ul#history-list li {
+      margin: 0.5rem 0;
+      padding: 0.3rem;
+      background-color: #444;
+      border-radius: 4px;
+    }
+
+    #clear-history {
+      background-color: #61dafb;
+      color: #000;
+      border: none;
+      padding: 0.5rem 1rem;
+      margin-top: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #clear-history:hover {
+      background-color: #55c1e6;
+    }
+  </style>
+</head>
+<body>
+  <div class="main">
+    <h1>🎲 Dice Roller Game</h1>
+
+    <label for="dice-select">Choose your dice:</label>
+    <select id="dice-select">
+      <option value="6">6-sided</option>
+      <option value="12">12-sided</option>
+    </select>
+
+    <br>
+    <button onclick="rollDice()">Roll the Dice</button>
+    <div id="result"></div>
+  </div>
+
+  <div class="history-panel">
+    <h2>Roll History</h2>
+    <ul id="history-list"></ul>
+    <button id="clear-history" onclick="clearHistory()">Clear History</button>
+  </div>
+
+  <script>
+    function getHistory() {
+      return JSON.parse(localStorage.getItem('diceHistory')) || [];
+    }
+
+    function saveHistory(history) {
+      localStorage.setItem('diceHistory', JSON.stringify(history));
+    }
+
+    function updateHistoryDisplay() {
+      const history = getHistory();
+      const historyList = document.getElementById('history-list');
+      historyList.innerHTML = '';
+      history.forEach((entry, index) => {
+        const li = document.createElement('li');
+        li.textContent = `#${index + 1}: Rolled ${entry.roll} on a ${entry.type}-sided dice`;
+        historyList.appendChild(li);
+      });
+    }
+
+    function rollDice() {
+      const diceType = document.getElementById("dice-select").value;
+      const result = Math.floor(Math.random() * parseInt(diceType)) + 1;
+      document.getElementById("result").textContent = `You rolled a ${result}! 🎉`;
+
+      let history = getHistory();
+      history.push({ roll: result, type: diceType });
+
+      // Keep only the last 10 rolls
+      if (history.length > 10) {
+        history = history.slice(-10);
+      }
+
+      saveHistory(history);
+      updateHistoryDisplay();
+    }
+
+    function clearHistory() {
+      localStorage.removeItem('diceHistory');
+      updateHistoryDisplay();
+    }
+
+    window.onload = updateHistoryDisplay;
+  </script>
+</body>
+</html>
